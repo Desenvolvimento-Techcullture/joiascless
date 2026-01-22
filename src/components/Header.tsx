@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, LogOut, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "./ui/badge";
 import { navLinks, data } from "@/data/company.js";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { itemCount } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -31,7 +33,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="/logo-transparente.png"
+              src={data.logo}
               alt=""
               className="h-8 w-auto object-contain"
             />
@@ -58,6 +60,18 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+             {isAuthenticated && (
+              <>
+                {user?.role === 'admin' && (
+                  <Link 
+                    to="/admin" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Administração
+                  </Link>
+                )}
+              </>
+            )}
           </nav>
 
           {/* Search Bar */}
@@ -73,7 +87,25 @@ const Header = () => {
               />
             </div>
           </form>
-
+          {/* Desktop Auth */}
+          <div className="hidden md:flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{user?.name}</span>
+                </div>
+                <Button variant="ghost" size="sm" >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" asChild>
+                <Link to="/login">Entrar</Link>
+              </Button>
+            )}
+          </div>
           {/* Cart Icon */}
           <Button
             variant="ghost"

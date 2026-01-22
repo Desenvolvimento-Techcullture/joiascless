@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Upload } from "lucide-react";
 import { products } from "@/data/company.js";
+import { useAuth } from '@/contexts/AuthContext';
+import { Link, Navigate } from 'react-router-dom';
 
 import {
   Card,
@@ -29,6 +31,7 @@ import Footer from "@/components/Footer";
 interface ProductForm {
   name: string;
   price: string;
+  quantity: string;
   category: string;
   image: string;
   description: string;
@@ -40,6 +43,12 @@ const Admin = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
   let  prods = products;
 
   const saverProds = localStorage.getItem("products");
@@ -49,6 +58,7 @@ const Admin = () => {
   const [formData, setFormData] = useState<ProductForm>({
     name: "",
     price: "",
+    quantity: "",
     category: "",
     image: "",
     description: "",
@@ -59,6 +69,7 @@ const Admin = () => {
     setFormData({
       name: "",
       price: "",
+      quantity: "",
       category: "",
       image: "",
       description: "",
@@ -71,6 +82,7 @@ const Admin = () => {
     setFormData({
       name: product.name,
       price: product.price.toString(),
+      quantity: product.quantity.toString(),
       category: product.category,
       image: product.image,
       description: product.description || "",
@@ -144,6 +156,7 @@ const Admin = () => {
     const productData = {
       name: formData.name,
       price: parseFloat(formData.price),
+      quantity: parseFloat(formData.quantity),
       category: formData.category,
       image: formData.image,
       description: formData.description || null,
@@ -306,6 +319,22 @@ const Admin = () => {
                       />
                     </div>
                     <div>
+                      <Label htmlFor="price">Estoque</Label>
+                      <Input
+                        id="estoque"
+                        type="number"
+                        step="0.01"
+                        value={formData.quantity}
+                        onChange={(e) =>
+                          setFormData({ ...formData, quantity: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                   
+                  </div>
+                  <div className="space-y-4">
+                  <div>
                       <Label htmlFor="category">Categoria</Label>
                       <Input
                         id="category"
@@ -316,8 +345,6 @@ const Admin = () => {
                         required
                       />
                     </div>
-                  </div>
-                  <div className="space-y-4">
                     <div>
                       <Label htmlFor="image-upload">Upload de Imagem</Label>
                       <div className="flex items-center gap-4">
@@ -386,7 +413,7 @@ const Admin = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, sizes: e.target.value })
                       }
-                      placeholder="P, M, G, GG"
+                      placeholder="12,13,14..."
                     />
                   </div>
                   <div className="flex justify-end gap-2">
@@ -432,6 +459,9 @@ const Admin = () => {
                             Tamanhos: {product.sizes.join(", ")}
                           </p>
                         )}
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Estoque: {product.quantity}
+                          </p>
                       </div>
                     </div>
                     <div className="flex gap-2">

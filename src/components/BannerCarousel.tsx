@@ -78,7 +78,7 @@ export const BannerCarousel = () => {
     <CarouselItem key={banner.id}>
       <Card className="border-0 overflow-hidden">
         {/* Contêiner com proporção 4:2 (2:1) */}
-        <div className="relative w-full aspect-[16/9]">
+        <div className="relative w-full aspect-[3/1]">
           <img
             src={banner.image}
             alt={banner.title}

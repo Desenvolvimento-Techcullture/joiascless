@@ -67,7 +67,9 @@ const Index = () => {
                   id={String(product.id)}
                   image={product.image}
                   name={product.name}
+                  description={product.description}
                   price={product.price}
+                  quantity={product.quantity}
                   category={product.category}
                 />
               ))}
