@@ -29,8 +29,12 @@ const ProductCard = ({ id, image, name, price, category }: ProductCardProps) => 
       {/* Content */}
       <div className="p-4 space-y-3">
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">{category}</p>
+          {/* <p className="text-xs text-muted-foreground uppercase tracking-wider">{category}</p> */}
           <h3 className="text-base font-medium mt-1">{name}</h3>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2"
+        >
+          {name}
+        </p>
         </div>
 
         <div className="flex items-center justify-between">
