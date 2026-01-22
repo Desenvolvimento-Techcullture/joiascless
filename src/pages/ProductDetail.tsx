@@ -105,6 +105,8 @@ const ProductDetail = () => {
                       Selecione um tamanho para adicionar ao carrinho
                     </p>
                   )}
+                <p> Estoque: {product.quantity}</p> 
+
                 </div>
               )}
 

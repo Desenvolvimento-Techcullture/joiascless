@@ -218,7 +218,7 @@ const Login = () => {
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                 Concordo com as{' '}
-                <a href={data.uriTermosCondicoes} target='__blank' className="font-medium text-primary hover:text-secondary">
+                <a href={data.uriTermosCondicoes} target='__blank' className="font-medium text-primary hover:opacity-70">
                   Termos e condições
                 </a>{' '}
 
@@ -232,7 +232,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-primary font-semibold hover:underline"
+                className="text-primary font-semibold hover:opacity-70"
               >
                 {isLogin ? 'Criar conta' : 'Entrar'}
               </button>

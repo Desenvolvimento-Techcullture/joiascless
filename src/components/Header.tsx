@@ -25,6 +25,11 @@ const Header = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -53,18 +58,18 @@ const Header = () => {
                 key={link.path}
                 to={link.path}
                 className={`text-sm font-medium transition-smooth ${isActive(link.path)
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 {link.label}
               </Link>
             ))}
-             {isAuthenticated && (
+            {isAuthenticated && (
               <>
                 {user?.role === 'admin' && (
-                  <Link 
-                    to="/admin" 
+                  <Link
+                    to="/admin"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Administração
@@ -95,7 +100,7 @@ const Header = () => {
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{user?.name}</span>
                 </div>
-                <Button variant="ghost" size="sm" >
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </Button>
@@ -158,13 +163,25 @@ const Header = () => {
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
                 className={`text-sm font-medium transition-smooth ${isActive(link.path)
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 {link.label}
               </Link>
             ))}
+              {isAuthenticated && (
+              <>
+                {user?.role === 'admin' && (
+                  <Link 
+                    to="/admin" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Administração
+                  </Link>
+                )}
+              </>
+            )}
             <Button
               variant="outline"
               className="w-full justify-start gap-2 relative"

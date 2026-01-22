@@ -6,6 +6,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { ProductCarousel } from "@/components/ProductCarousel";
+
+
 
 interface ProductCardProps {
   id: string;
@@ -55,6 +58,7 @@ const ProductCard = ({
           className={`h-full w-full object-contain transition-smooth ${isOutOfStock ? "grayscale" : "group-hover:scale-105"
             }`}
         />
+        {/* <ProductCarousel/> */}
       </div>
 
       {/* Content */}
@@ -64,7 +68,7 @@ const ProductCard = ({
           <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
             {description}
           </p>
-          <p> Quantidade: {quantity}</p>
+          {/* <p> Quantidade: {quantity}</p> */}
         </div>
 
         <div className="flex items-center justify-between">
