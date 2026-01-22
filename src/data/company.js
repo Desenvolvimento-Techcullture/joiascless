@@ -51,7 +51,7 @@ export const products = [
     { "id": 1050, "image": "https://joiascless.catalogo.app/fotos/189/189_1050_produto.jpg", "name": "Argolinha Estrela do Mar Banhado a Ouro", "price": 69.9, "category": "Argolinhas", "description": "argolinha estrela do mar banhado a ouro" },
     { "id": 1042, "image": "https://joiascless.catalogo.app/fotos/189/189_1042_produto.jpg", "name": "COLAR CAUDA SEREIA PRATA", "price": 139.9, "category": "Colares", "description": "colar cauda sereia prata" },
     { "id": 1033, "image": "https://joiascless.catalogo.app/fotos/189/189_1033_produto.jpg", "name": "ANEL VERSAILLES", "price": 169.9, "category": "Anéis", "description": "anel versailles" },
-    { "id": 1024, "image": "https://joiascless.catalogo.app/fotos/189/189_1024_produto.jpg", "name": "ANEL CARISMA", "price": 113.9, "category": "Anéis", "description": "anel carisma" },
+    { "id": 1024, "image": "https://joiascless.catalogo.app/fotos/189/189_1024_produto.jpg", "name": "ANEL CARISMA", "price": 113.9, "category": "Anéis", "description": "anel carisma", "sizes": ["10", "12", "14", "18"] },
     { "id": 1023, "image": "https://joiascless.catalogo.app/fotos/189/189_1023_produto.jpg", "name": "PULSEIRA CARISMA", "price": 253.9, "category": "Pulseiras", "description": "pulseira carisma" },
     { "id": 1020, "image": "https://joiascless.catalogo.app/fotos/189/189_1020_produto.jpg", "name": "BRINCO PRISMA 4MM", "price": 34.9, "category": "Brincos", "description": "brinco prisma 4mm" },
     { "id": 1018, "image": "https://joiascless.catalogo.app/fotos/189/189_1018_produto.jpg", "name": "TORNOZELEIRA FLORENCE 6MM", "price": 152.9, "category": "Tornozeleiras", "description": "tornozeleira florence 6mm" },
