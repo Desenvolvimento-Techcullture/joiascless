@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+     :root {
+        /* =========================
+           Base
+        ========================= */
+        --background: 0 0% 98%;
+        --foreground: 0 0% 15%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 15%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 15%;
+        /* =========================
+           Marca – Laranja Joias Cless
+        ========================= */
+        --primary: 32 89% 55%;
+        --primary-foreground: 0 0% 100%;
+        /* Gradiente primário suave */
+        --primary-gradient: linear-gradient( 135deg, hsl(32 89% 60%) 0%, hsl(32 89% 55%) 40%, hsl(28 85% 50%) 100%);
+        /* Versão animável (background-size maior) */
+        --primary-gradient-animated: linear-gradient( 135deg, hsl(32 89% 62%), hsl(32 89% 55%), hsl(28 85% 50%), hsl(32 89% 60%));
+        /* =========================
+           Cinzas & apoio
+        ========================= */
+        --secondary: 0 0% 92%;
+        --secondary-foreground: 0 0% 35%;
+        --muted: 0 0% 90%;
+        --muted-foreground: 0 0% 45%;
+        --accent: 32 89% 60%;
+        --accent-foreground: 0 0% 100%;
+        /* =========================
+           Footer
+        ========================= */
+        --footer: 0 0% 15%;
+        --footer-foreground: 0 0% 95%;
+        /* =========================
+           Destructive
+        ========================= */
+        --destructive: 0 75% 55%;
+        --destructive-foreground: 0 0% 98%;
+        /* =========================
+           Borders & Inputs
+        ========================= */
+        --border: 0 0% 85%;
+        --input: 0 0% 85%;
+        --ring: 32 89% 55%;
+        --radius: 0.5rem;
+        /* =========================
+           Gradientes & Sombras
+        ========================= */
+        --gradient-hero: linear-gradient( 135deg, hsl(32 89% 90%) 0%, hsl(0 0% 98%) 100%);
+        --gradient-overlay: linear-gradient( 180deg, transparent 0%, hsl(0 0% 0% / 0.6) 100%);
+        --shadow-elegant: 0 10px 40px -10px hsl(0 0% 0% / 0.1);
+        --shadow-hover: 0 20px 60px -15px hsl(0 0% 0% / 0.15);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* =========================
+       🌙 Dark Mode
+    ========================= */
+    .dark {
+        --background: 0 0% 10%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 14%;
+        --card-foreground: 0 0% 95%;
+        --popover: 0 0% 14%;
+        --popover-foreground: 0 0% 95%;
+        --primary: 32 89% 55%;
+        --primary-foreground: 0 0% 100%;
+        --primary-gradient: linear-gradient( 135deg, hsl(32 89% 65%) 0%, hsl(32 89% 55%) 50%, hsl(28 80% 45%) 100%);
+        --primary-gradient-animated: linear-gradient( 135deg, hsl(32 89% 68%), hsl(32 89% 55%), hsl(28 80% 45%), hsl(32 89% 60%));
+        --secondary: 0 0% 20%;
+        --secondary-foreground: 0 0% 80%;
+        --muted: 0 0% 22%;
+        --muted-foreground: 0 0% 60%;
+        --border: 0 0% 25%;
+        --input: 0 0% 25%;
+        --ring: 32 89% 55%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-light tracking-tight;
+    }
+    h1,
+    h2 {
+        @apply text-primary
+    }
+}
+
+@layer utilities {
+    /* =========================
+       Transições & sombras
+    ========================= */
+    .transition-smooth {
+        transition: var(--transition-smooth);
+    }
+    .shadow-elegant {
+        box-shadow: var(--shadow-elegant);
+    }
+    .shadow-hover {
+        box-shadow: var(--shadow-hover);
+    }
+    /* =========================
+       Gradiente primário
+    ========================= */
+    .bg-primary-gradient {
+        background: var(--primary-gradient);
+    }
+    /* =========================
+       Hover animado (luxo)
+    ========================= */
+    .btn-primary-animated {
+        background: var(--primary-gradient-animated);
+        background-size: 300% 300%;
+        color: hsl(var(--primary-foreground));
+        transition: background-position 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary-animated:hover {
+        background-position: 100% 50%;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+    .btn-primary-animated:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-elegant);
+    }
+}
