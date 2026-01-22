@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Pencil, Trash2, Plus } from "lucide-react";
 import { products } from "@/data/company.js";
-import { useAuth } from '@/contexts/AuthContext';
-import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 import {
   Card,
@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Pencil, Trash2, Plus } from "lucide-react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -40,21 +41,23 @@ interface ProductForm {
 
 const Admin = () => {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const [search, setSearch] = useState("");
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  let  prods = products;
-
-  const saverProds = localStorage.getItem("products");
-  if (saverProds) {
-     prods = ( JSON.parse(saverProds));
+  let prods = products;
+  const savedProds = localStorage.getItem("products");
+  if (savedProds) {
+    prods = JSON.parse(savedProds);
   }
+
   const [formData, setFormData] = useState<ProductForm>({
     name: "",
     price: "",
@@ -63,6 +66,14 @@ const Admin = () => {
     image: "",
     description: "",
     sizes: "",
+  });
+
+  const filteredProducts = prods.filter((product) => {
+    const term = search.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(term) ||
+      product.category.toLowerCase().includes(term)
+    );
   });
 
   const resetForm = () => {
@@ -92,65 +103,7 @@ const Admin = () => {
     setIsDialogOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione um arquivo de imagem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Erro",
-        description: "A imagem deve ter no máximo 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
-
-      // const { error: uploadError } = await supabase.storage
-      //   .from("product-images")
-      //   .upload(filePath, file);
-
-      // if (uploadError) throw uploadError;
-
-      // const { data: { publicUrl } } = supabase.storage
-      //   .from("product-images")
-      //   .getPublicUrl(filePath);
-
-      // setFormData({ ...formData, image: publicUrl });
-
-      toast({
-        title: "Imagem enviada",
-        description: "A imagem foi enviada com sucesso.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao enviar imagem",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const productData = {
@@ -165,115 +118,58 @@ const Admin = () => {
         : null,
     };
 
-    try {
-      if (editingId) {
-        // const { error } = await supabase
-        //   .from("products")
-        //   .update(productData)
-        //   .eq("id", editingId);
+    if (editingId) {
+      const index = prods.findIndex((p) => p.id == editingId);
+      prods[index] = { ...prods[index], ...productData };
 
-        // if (error) throw error;
-
-        const index = prods.findIndex( p => p.id == editingId);
-        prods[index] = {...prods[index], ...productData };
-
-        toast({
-          title: "Produto atualizado",
-          description: "O produto foi atualizado com sucesso.",
-        });
-      } else {
-        // const { error } = await supabase.from("prods").insert([productData]);
-        prods.push( { id: (prods.length + 1) , ...productData } );
-
-        // if (error) throw error;
-
-        toast({
-          title: "Produto criado",
-          description: "O produto foi criado com sucesso.",
-        });
-      }
-      // Salva o conteudo
-      localStorage.setItem("products", JSON.stringify(prods));
-      // refetch();
-      setIsDialogOpen(false);
-      resetForm();
-    } catch (error: any) {
       toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
+        title: "Produto atualizado",
+        description: "O produto foi atualizado com sucesso.",
+      });
+    } else {
+      prods.push({ id: prods.length + 1, ...productData });
+
+      toast({
+        title: "Produto criado",
+        description: "O produto foi criado com sucesso.",
       });
     }
+
+    localStorage.setItem("products", JSON.stringify(prods));
+    setIsDialogOpen(false);
+    resetForm();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm("Tem certeza que deseja deletar este produto?")) return;
 
-    try {
-      // const { error } = await supabase.from("products").delete().eq("id", id);
-      const index = prods.findIndex( p => p.id == id);
-      prods.splice(index,1);
-      
-      // Salva o conteudo
-      localStorage.setItem("products", JSON.stringify(prods));
-      // if (error) throw error;
+    const index = prods.findIndex((p) => p.id == id);
+    prods.splice(index, 1);
 
-      toast({
-        title: "Produto deletado",
-        description: "O produto foi deletado com sucesso.",
-      });
+    localStorage.setItem("products", JSON.stringify(prods));
 
-      // refetch();
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Produto deletado",
+      description: "O produto foi deletado com sucesso.",
+    });
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex flex-col">
-  //       <Header />
-  //       <main className="flex-grow container mx-auto px-4 py-24">
-  //         <div className="text-center">Carregando...</div>
-  //       </main>
-  //       <Footer />
-  //     </div>
-  //   );
-  // }
- const handleimg = (id) => {
-  // alert('produto em formulario  ' + formData.name);
-
-    const index = prods.findIndex( p => p.id == id);
-        prods[index] = {...prods[index], 
-        name: formData.name,
-        category: formData.category,
-        price: parseFloat(formData.price),
-        sizes: formData.sizes
-        ? formData.sizes.split(",").map((s) => s.trim())
-        : null,
-      };
-      // setEditingId(id);
-
-      // Salva o conteudo
-      localStorage.setItem("products", JSON.stringify(prods));
-    
- }
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+
       <main className="flex-grow container mx-auto px-4 py-24">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Administração de Produtos</h1>
+              <h1 className="text-4xl font-bold mb-2">
+                Administração de Produtos
+              </h1>
               <p className="text-muted-foreground">
                 Gerencie os produtos da sua loja
               </p>
             </div>
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={resetForm}>
@@ -281,6 +177,7 @@ const Admin = () => {
                   Novo Produto
                 </Button>
               </DialogTrigger>
+
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>
@@ -292,11 +189,11 @@ const Admin = () => {
                       : "Adicione um novo produto à loja"}
                   </DialogDescription>
                 </DialogHeader>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Nome</Label>
+                    <Label>Nome</Label>
                     <Input
-                      id="name"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -304,13 +201,12 @@ const Admin = () => {
                       required
                     />
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="price">Preço</Label>
+                      <Label>Preço</Label>
                       <Input
-                        id="price"
                         type="number"
-                        step="0.01"
                         value={formData.price}
                         onChange={(e) =>
                           setFormData({ ...formData, price: e.target.value })
@@ -318,12 +214,11 @@ const Admin = () => {
                         required
                       />
                     </div>
+
                     <div>
-                      <Label htmlFor="price">Estoque</Label>
+                      <Label>Estoque</Label>
                       <Input
-                        id="estoque"
                         type="number"
-                        step="0.01"
                         value={formData.quantity}
                         onChange={(e) =>
                           setFormData({ ...formData, quantity: e.target.value })
@@ -331,99 +226,57 @@ const Admin = () => {
                         required
                       />
                     </div>
-                   
                   </div>
-                  <div className="space-y-4">
+
                   <div>
-                      <Label htmlFor="category">Categoria</Label>
-                      <Input
-                        id="category"
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData({ ...formData, category: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="image-upload">Upload de Imagem</Label>
-                      <div className="flex items-center gap-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={isUploading}
-                          onClick={() => document.getElementById("image-upload")?.click()}
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Enviando...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="mr-2 h-4 w-4" />
-                              Escolher Imagem
-                            </>
-                          )}
-                        </Button>
-                        <input
-                          id="image-upload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                        />
-                        {formData.image && (
-                          <img
-                            src={formData.image}
-                            alt="Preview"
-                            className="h-16 w-16 object-cover rounded-md"
-                          />
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="image">Ou insira a URL da Imagem</Label>
-                      <Input
-                        id="image"
-                        value={formData.image}
-                        onChange={(e) =>
-                          setFormData({ ...formData, image: e.target.value })
-                        }
-                        placeholder="https://exemplo.com/imagem.jpg"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
+                    <Label>Categoria</Label>
+                    <Input
+                      value={formData.category}
                       onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
+                        setFormData({ ...formData, category: e.target.value })
                       }
-                      rows={3}
+                      required
                     />
                   </div>
+
                   <div>
-                    <Label htmlFor="sizes">Tamanhos (separados por vírgula)</Label>
+                    <Label>Imagem (URL)</Label>
                     <Input
-                      id="sizes"
+                      value={formData.image}
+                      onChange={(e) =>
+                        setFormData({ ...formData, image: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Descrição</Label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Tamanhos</Label>
+                    <Input
                       value={formData.sizes}
                       onChange={(e) =>
                         setFormData({ ...formData, sizes: e.target.value })
                       }
-                      placeholder="12,13,14..."
                     />
                   </div>
+
                   <div className="flex justify-end gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        setIsDialogOpen(false);
-                        resetForm();
-                      }}
+                      onClick={() => setIsDialogOpen(false)}
                     >
                       Cancelar
                     </Button>
@@ -436,45 +289,52 @@ const Admin = () => {
             </Dialog>
           </div>
 
+          {/* PESQUISA */}
+          <Input
+            placeholder="Pesquisar por nome ou categoria..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-md mb-6"
+          />
+
+          {filteredProducts.length === 0 && (
+            <p className="text-muted-foreground">
+              Nenhum produto encontrado.
+            </p>
+          )}
+
           <div className="grid gap-4">
-            {prods?.map((product) => (
+            {filteredProducts.map((product) => (
               <Card key={product.id}>
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex justify-between">
                     <div className="flex gap-4">
                       <img
                         src={product.image}
-                        alt={product.name}
-                        className="w-24 h-24 object-contain rounded-md"
-                            onClick={ () => handleimg(product.id)}
-
+                        className="w-24 h-24 object-contain rounded"
                       />
                       <div>
                         <CardTitle>{product.name}</CardTitle>
-                        <CardDescription className="mt-2">
+                        <CardDescription>
                           {product.category} • R$ {product.price.toFixed(2)}
                         </CardDescription>
-                        {product.sizes && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Tamanhos: {product.sizes.join(", ")}
-                          </p>
-                        )}
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Estoque: {product.quantity}
-                          </p>
+                        <p className="text-sm">
+                          Estoque: {product.quantity}
+                        </p>
                       </div>
                     </div>
+
                     <div className="flex gap-2">
                       <Button
-                        variant="outline"
                         size="icon"
+                        variant="outline"
                         onClick={() => handleEdit(product)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="destructive"
                         size="icon"
+                        variant="destructive"
                         onClick={() => handleDelete(product.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -482,6 +342,7 @@ const Admin = () => {
                     </div>
                   </div>
                 </CardHeader>
+
                 {product.description && (
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
@@ -494,6 +355,7 @@ const Admin = () => {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );
