@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/carousel";
 import { Card } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
-import carroussel1 from '@/assets/banner1.png';
-import carroussel2 from '@/assets/carrousel-aconchego2.png';
-import carroussel3 from '@/assets/carrousel-aconchego3.png';
+import carroussel1 from '@/assets/banner_site.png';
+import carroussel2 from '@/assets/banner_brincos.png';
+import carroussel3 from '@/assets/banner_tornozeleira.png';
 
 interface Banner {
   id: string;
@@ -20,14 +20,20 @@ interface Banner {
 
 const banners: Banner[] = [
   {
-    id: "2",
+    id: "1",
     image: carroussel1,
     title: "",
     description: ""
   },
   {
+    id: "2",
+    image: carroussel2,
+    title: "",
+    description: ""
+  },
+  {
     id: "3",
-    image: 'https://scontent.fplu6-1.fna.fbcdn.net/v/t39.30808-6/469937808_572564202180358_1133261062752559958_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=XSK0cu45HUIQ7kNvwEhH9fl&_nc_oc=AdmnVQ5UTDjfJAQLhfQHQq4DOE0-zG2fvNfSCTxx6YvT3e-hm3q0u6_1xqoUy1CdjNlBvJcW9tuUcDKl79zDrHXB&_nc_zt=23&_nc_ht=scontent.fplu6-1.fna&_nc_gid=nffAQOBKs0Z6dnWwan9NJQ&oh=00_AfoXJyiZdosgJzGAcAiwcySbfifGoyNF68YcJFzpr0Vhng&oe=69770C8D',
+    image: carroussel3,
     title: "",
     description: ""
   }

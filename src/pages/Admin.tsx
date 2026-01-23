@@ -102,7 +102,67 @@ const Admin = () => {
     setEditingId(product.id);
     setIsDialogOpen(true);
   };
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione um arquivo de imagem.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      // const { error: uploadError } = await supabase.storage
+      //   .from("product-images")
+      //   .upload(filePath, file);
+
+      // if (uploadError) throw uploadError;
+
+      // const { data: { publicUrl } } = supabase.storage
+      //   .from("product-images")
+      //   .getPublicUrl(filePath);
+
+      // setFormData({ ...formData, image: filePath });
+
+      const reader = new FileReader();
+      reader.onload = () => setFormData({ ...formData, image: reader.result as string });
+      reader.readAsDataURL(file);
+
+      toast({
+        title: "Imagem carregada",
+        description: "A imagem foi carregada com sucesso.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao enviar imagem",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -238,14 +298,51 @@ const Admin = () => {
                       required
                     />
                   </div>
-
                   <div>
-                    <Label>Imagem (URL)</Label>
+                      <Label htmlFor="image-upload">Upload de Imagem</Label>
+                      <div className="flex items-center gap-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={isUploading}
+                          onClick={() => document.getElementById("image-upload")?.click()}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Escolher Imagem
+                            </>
+                          )}
+                        </Button>
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                        {formData.image && (
+                          <img
+                            src={formData.image}
+                            alt="Preview"
+                            className="h-16 w-16 object-cover rounded-md"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  <div>
+                    <Label>Ou insira a URL da Imagem</Label>
                     <Input
                       value={formData.image}
                       onChange={(e) =>
                         setFormData({ ...formData, image: e.target.value })
                       }
+                      placeholder="https://exemplo.com/imagem.jpg"
                     />
                   </div>
 
@@ -269,6 +366,8 @@ const Admin = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, sizes: e.target.value })
                       }
+                      placeholder="12,13,14..."
+
                     />
                   </div>
 
