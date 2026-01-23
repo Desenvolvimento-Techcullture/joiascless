@@ -5,7 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card } from "@/components/ui/card";
+
 import Autoplay from "embla-carousel-autoplay";
 import carroussel1 from '@/assets/banner_site.png';
 import carroussel2 from '@/assets/banner_brincos.png';
@@ -82,13 +82,13 @@ export const BannerCarousel = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <Card className="border-0 overflow-hidden">
+              <div className="border bg-card text-card-foreground shadow-smborder-0 overflow-hidden">
                 {/* Contêiner com proporção 4:2 (2:1) */}
-                <div className="relative w-full aspect-[3/1]">
+                <div className="relative w-fulla aspect-[3/2] md:aspect-[3/1]">
                   <img
                     src={banner.image}
                     alt={banner.title}
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-right"
                   />
 
                   {/* Overlay com gradiente */}
@@ -103,7 +103,7 @@ export const BannerCarousel = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
