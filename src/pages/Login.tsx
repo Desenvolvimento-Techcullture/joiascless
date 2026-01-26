@@ -43,7 +43,7 @@ const Login = () => {
           setIsLoading(false);
           return;
         }
-        console.log(formData);
+
         success = await register(formData.name, formData.email, formData.phone, formData.password);
       }
 

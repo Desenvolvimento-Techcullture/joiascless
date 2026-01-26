@@ -67,27 +67,27 @@ const Checkout = () => {
     },
   });
 
-  
+
 
   const calculateShipping = (city: string) => {
     if (!city) return { available: false, cost: 0, days: 1, isFree: false };
-    
+
     const normalizedCity = city.trim().toLowerCase();
     const normalizedFreeCities = freeCities.map(c => c.toLowerCase());
     const normalizedAvailableCities = availableCities.map(c => c.toLowerCase());
-    
+
     if (!normalizedAvailableCities.includes(normalizedCity)) {
       return { available: false, cost: 0, days: 1, isFree: false };
     }
-    
+
     if (normalizedCity === "roca") {
       return { available: true, cost: 30, days: 1, isFree: false };
     }
-    
+
     if (normalizedFreeCities.includes(normalizedCity)) {
       return { available: true, cost: 0, days: 1, isFree: true };
     }
-    
+
     return { available: true, cost: 100, days: 1, isFree: false };
   };
 
@@ -99,13 +99,13 @@ const Checkout = () => {
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
-      
+
       if (!data.erro) {
         form.setValue("city", data.localidade);
         form.setValue("state", data.uf);
         form.setValue("address", data.logradouro || "");
         form.setValue("neighborhood", data.bairro || "");
-        
+
         // Calcular frete automaticamente baseado na cidade
         const shipping = calculateShipping(data.localidade);
         setShippingInfo(shipping);
@@ -147,7 +147,7 @@ const Checkout = () => {
 
   const generateWhatsAppMessage = (data: CheckoutForm) => {
     let message = "🛒 *NOVO PEDIDO*\n\n";
-    
+
     message += "📋 *PRODUTOS:*\n";
     items.forEach((item, index) => {
       message += `${index + 1}. ${item.name}\n`;
@@ -187,16 +187,82 @@ const Checkout = () => {
 
     return message;
   };
+  // Função para salvar clientes no localStorage
+  const saveCustomer = (customer: CheckoutForm) => {
+    const storedCustomers = localStorage.getItem('customers');
+    const customers = storedCustomers ? JSON.parse(storedCustomers) : [];
+
+    // Evitar duplicidade usando email ou telefone
+    const exists = customers.some(
+      (c: CheckoutForm) => c.email === customer.email || c.phone === customer.phone
+    );
+
+    if (!exists) {
+      customers.push({
+        id: Date.now(), // ID único
+        ...customer
+      });
+      localStorage.setItem('customers', JSON.stringify(customers));
+    }
+  };
+
+  // Função para salvar pedidos no localStorage
+  const saveOrder = (customer: CheckoutForm) => {
+    const storedOrders = localStorage.getItem('orders');
+
+    const orders = storedOrders ? JSON.parse(storedOrders) : [];
+    const order = {
+      id: Date.now(), // ID único
+      customer: {
+        name: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        document: customer.document,
+        documentType: customer.documentType,
+      },
+      items: items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      shipping: {
+        method: customer.deliveryMethod,
+        city: customer.shippingCity,
+        address: customer.address,
+        number: customer.number,
+        complement: customer.complement,
+        neighborhood: customer.neighborhood,
+        state: customer.state,
+        cep: customer.cep,
+        cost: shippingCost,
+      },
+      paymentMethod: customer.paymentMethod,
+      observations: customer.observations,
+      subtotal: getTotalPrice(),
+      total: getFinalTotal(),
+      date: new Date().toISOString(),
+    };
+
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+  };
 
   const onSubmit = (data: CheckoutForm) => {
+    // Salvar cliente e pedido
+    saveCustomer(data);
+    saveOrder(data);
+  
+    // Gerar mensagem para WhatsApp
     const message = generateWhatsAppMessage(data);
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `${whatsapp}?text=${encodedMessage}`;
-    
+  
     window.open(whatsappUrl, '_blank');
     clearCart();
     navigate('/');
   };
+  
 
   if (items.length === 0) {
     return (
@@ -382,8 +448,8 @@ const Checkout = () => {
                                 <FormItem>
                                   <FormLabel>CEP</FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      placeholder="00000-000" 
+                                    <Input
+                                      placeholder="00000-000"
                                       {...field}
                                       disabled={isLoadingCep}
                                       onChange={(e) => {
@@ -515,8 +581,8 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>Cidade para entrega</FormLabel>
                                 <FormControl>
-                                  <Input 
-                                    placeholder="Digite sua cidade" 
+                                  <Input
+                                    placeholder="Digite sua cidade"
                                     {...field}
                                     onChange={(e) => {
                                       field.onChange(e);
@@ -530,23 +596,23 @@ const Checkout = () => {
                               </FormItem>
                             )}
                           />
-                          
+
                           {form.watch("shippingCity") && (
                             <div className="p-4 bg-muted rounded-lg space-y-2">
                               <div className="flex justify-between items-center">
                                 <span className="font-medium">Valor do frete:</span>
                                 <span className={`font-bold ${shippingInfo.isFree ? 'text-green-600' : ''}`}>
-                                  { shippingInfo.isFree ? 'GRÁTIS' : formatPrice(shippingInfo.cost)}
+                                  {shippingInfo.isFree ? 'GRÁTIS' : formatPrice(shippingInfo.cost)}
                                 </span>
                               </div>
-                              { shippingInfo.available && (<div className="flex justify-between items-center">
+                              {shippingInfo.available && (<div className="flex justify-between items-center">
                                 <span className="font-medium">Prazo de entrega:</span>
                                 <span className="font-bold">{shippingInfo.days} dia(s)</span>
                               </div>)}
 
                               {!shippingInfo.available && (
                                 <p className="text-sm text-red-600 mt-2">
-                                   Desculpe, não entregamos nessa cidade!
+                                  Desculpe, não entregamos nessa cidade!
                                 </p>
                               )}
                               {shippingInfo.isFree && (

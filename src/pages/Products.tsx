@@ -95,7 +95,7 @@ const Products = () => {
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-4">Categorias</h3>
                   <div className="space-y-3">
-                    {categories.map((category) => (
+                    {categories.map((category: string) => (
                       <div key={category} className="flex items-center gap-2">
                         <Checkbox
                           id={`category-${category}`}
@@ -178,7 +178,7 @@ const Products = () => {
                     <ProductCard
                       key={product.id}
                       id={String(product.id)}
-                      image={product.image}
+                      image={product.images[0]}
                       name={product.name}
                       description={product.description}
                       price={product.price}

@@ -129,7 +129,7 @@ const Contact = () => {
                 </h2>
 
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4">
+                  {/* <div className="flex items-start gap-4">
                     <div className="bg-background p-3 rounded-lg">
                       <MapPin className="h-5 w-5 text-accent" />
                     </div>
@@ -139,7 +139,7 @@ const Contact = () => {
                        {data.address}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-start gap-4">
                     <div className="bg-background p-3 rounded-lg">
@@ -149,7 +149,7 @@ const Contact = () => {
                       <h3 className="font-medium mb-1">Telefone</h3>
                       <p className="text-sm text-muted-foreground">
                         {data.phone}<br />
-                        Segunda a Sábado: 9h às 18h
+                        {data.openingHours}
                       </p>
                     </div>
                   </div>

@@ -1,23 +1,21 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ShoppingBag, ChevronLeft } from "lucide-react";
+import { ShoppingBag, ChevronLeft, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { products } from "@/data/company.js";
 
-
-// Mock products data (em produção viria de uma API/banco de dados)
-
-
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [zoomOpen, setZoomOpen] = useState(false);
+
   const prods = JSON.parse(localStorage.getItem("products")) ?? products;
- 
   const product = prods.find((p) => p.id == id);
 
   if (!product) {
@@ -38,9 +36,7 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      return;
-    }
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) return;
     addToCart(product, selectedSize);
   };
 
@@ -57,32 +53,51 @@ const ProductDetail = () => {
             Voltar aos produtos
           </Link>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Image */}
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-contain"
-              />
-            </div>
+          <div className="grid md:grid-cols-[1fr_1fr] gap-12">
+            {/* Imagem principal */}
+            <div className="flex flex-col items-start relative">
+              <div
+                // className="relative border rounded-lg overflow-hidden w-full h-[500px] cursor-zoom-in"
+                className="w-full h-full bg-no-repeat bg-contain"
+                // relative border rounded-lg overflow-hidden w-full h-[500px]
+                onClick={() => setZoomOpen(true)}
+              >
+                <img
+                  src={product.images[activeImageIndex]}
+                  alt={`${product.name} ${activeImageIndex + 1}`}
+                  className="h-full w-full object-contain transition-transform duration-300"
+                />
+              </div>
 
+              {/* Miniaturas */}
+              { (product.images.length > 1) &&  <div className="flex gap-2 mt-4">
+                {product.images.map((img: string, idx: number) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    className={`h-20 w-20 object-cover border rounded cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
+                      idx === activeImageIndex ? "border-primary" : "border-gray-300"
+                    }`}
+                    onClick={() => setActiveImageIndex(idx)}
+                  />
+                ))}
+              </div> }
+            </div>
+                  
             {/* Product Info */}
             <div className="space-y-6">
               <div>
                 <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
                   {product.category}
                 </p>
-                <h1 className="text-4xl font-light mb-4 text-gray-900 ">{product.name}</h1>
+                <h1 className="text-4xl font-light mb-4">{product.name}</h1>
                 <p className="text-3xl font-light text-primary">
                   R$ {product.price.toFixed(2).replace(".", ",")}
                 </p>
               </div>
 
               {product.description && (
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description}
-                </p>
+                <p className="text-muted-foreground leading-relaxed">{product.description}</p>
               )}
 
               {product.sizes && product.sizes.length > 0 && (
@@ -105,8 +120,6 @@ const ProductDetail = () => {
                       Selecione um tamanho para adicionar ao carrinho
                     </p>
                   )}
-                <p> Estoque: {product.quantity}</p> 
-
                 </div>
               )}
 
@@ -122,6 +135,23 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Zoom fullscreen */}
+        {zoomOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+            <button
+              className="absolute top-4 right-4 text-white text-2xl"
+              onClick={() => setZoomOpen(false)}
+            >
+              <X />
+            </button>
+            <img
+              src={product.images[activeImageIndex]}
+              alt={`${product.name} zoom`}
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+        )}
       </main>
       <Footer />
     </>
