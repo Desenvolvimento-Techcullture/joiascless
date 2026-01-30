@@ -10,24 +10,24 @@ export const banners = [{
         image: carroussel1,
         title: "",
         description: "Vem pra joias cless",
-        buttons: [
-            { link: "/products", description: "Meus produtos legais", variant: 'outlineDark' },
-            { link: "/products", description: "Contatos legais", variant: 'dark' },
-            { link: "/products", description: "outras coisas legais legais", variant: 'primary' },
-        ]
+        // buttons: [
+        //     { link: "/products", description: "Meus produtos legais", variant: 'outlineDark' },
+        //     { link: "/products", description: "Contatos legais", variant: 'dark' },
+        //     { link: "/products", description: "outras coisas legais legais", variant: 'primary' },
+        // ]
     },
-    // {
-    //     id: "2",
-    //     image: carroussel2,
-    //     title: "",
-    //     description: ""
-    // },
-    // {
-    //     id: "3",
-    //     image: carroussel3,
-    //     title: "",
-    //     description: ""
-    // }
+    {
+        id: "2",
+        image: carroussel2,
+        title: "",
+        description: ""
+    },
+    {
+        id: "3",
+        image: carroussel3,
+        title: "",
+        description: ""
+    }
 ];
 export const products = [
     { "id": 768, "images": ["https://joiascless.catalogo.app/fotos/189/189_768_produto.jpg", "https://joiascless.catalogo.app/fotos/189/189_1290_produto.jpg"], "name": "ANEL SOLITARIO ZIRCONIA", "price": 129.9, "category": "Anéis", "description": "anel solitario zirconia", "quantity": 7 },
