@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import { ProductProvider } from "./contexts/ProductContext";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -21,10 +23,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
     <TooltipProvider>
+      <ProductProvider>
       <CartProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop/>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/products" element={<Products />} />
@@ -39,6 +43,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </CartProvider>
+      </ProductProvider>
     </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

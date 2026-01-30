@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-import { freeCities, availableCities, data } from "@/data/company.js";
+import { freeCities, availableCities, company, API_BASE_URL } from "@/assets/data.js";
+import { useAuthFetch } from "@/hooks/use-auth-fetch";
 
 const checkoutSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -43,7 +44,8 @@ const Checkout = () => {
   const [shippingCost, setShippingCost] = useState(0);
   const [shippingInfo, setShippingInfo] = useState({ available: true, cost: 0, days: 1, isFree: false });
   const [isLoadingCep, setIsLoadingCep] = useState(false);
-  const whatsapp = data.whatsapp;
+  const whatsapp = company.whatsapp;
+  const { authFetch } = useAuthFetch();
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -188,26 +190,15 @@ const Checkout = () => {
     return message;
   };
   // Função para salvar clientes no localStorage
-  const saveCustomer = (customer: CheckoutForm) => {
-    const storedCustomers = localStorage.getItem('customers');
-    const customers = storedCustomers ? JSON.parse(storedCustomers) : [];
+  const saveCustomer = async (customer: CheckoutForm) => {
 
-    // Evitar duplicidade usando email ou telefone
-    const exists = customers.some(
-      (c: CheckoutForm) => c.email === customer.email || c.phone === customer.phone
-    );
-
-    if (!exists) {
-      customers.push({
-        id: Date.now(), // ID único
-        ...customer
-      });
-      localStorage.setItem('customers', JSON.stringify(customers));
-    }
+      // localStorage.setItem('customers', JSON.stringify(customers));
+      const response = await authFetch({ url:'customers/', method: 'POST', body: customer});
+    
   };
 
   // Função para salvar pedidos no localStorage
-  const saveOrder = (customer: CheckoutForm) => {
+  const saveOrder = async (customer: CheckoutForm) => {
     const storedOrders = localStorage.getItem('orders');
 
     const orders = storedOrders ? JSON.parse(storedOrders) : [];
@@ -242,10 +233,12 @@ const Checkout = () => {
       subtotal: getTotalPrice(),
       total: getFinalTotal(),
       date: new Date().toISOString(),
+      status: 'pendente',
     };
 
     orders.push(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
+    // localStorage.setItem('orders', JSON.stringify(orders));
+    const response = await authFetch({ url:'orders/', method: 'POST', body: order});
   };
 
   const onSubmit = (data: CheckoutForm) => {

@@ -7,19 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { products, sizes } from "@/data/company.js";
+import { useProduct } from "@/contexts/ProductContext";
 
 const Products = () => {
   const [searchParams] = useSearchParams();
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [sizeRange, setSizeRange] = useState([6, 90]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const prods = JSON.parse(localStorage.getItem("products")) ?? products;
-  const categories = [...new Set(prods.map(product => product.category))];
+  const { products } = useProduct();
+  const categories = [...new Set(products.map(product => product.category))];
 
   useEffect(() => {
     const search = searchParams.get("search");
+    const category = searchParams.get("category");
+
+    if (category) {
+      setSelectedCategories([category]);
+    }
     if (search) {
       setSearchTerm(search);
     }
@@ -42,7 +48,7 @@ const Products = () => {
   };
   // Filtrar produtos baseado nos critérios selecionados
   const filteredProducts = useMemo(() => {
-    return prods.filter((product) => {
+    return products.filter((product) => {
       // Filtro de busca
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
@@ -63,15 +69,22 @@ const Products = () => {
       }
 
       // 🆕 Filtro de tamanho
-      if (selectedSizes.length > 0) {
-        // Verifica se o produto possui pelo menos um dos tamanhos selecionados
-        const hasSelectedSize = product.sizes?.some(size => selectedSizes.includes(size));
-        if (!hasSelectedSize) return false;
-      }
+      // if (selectedSizes.length > 0) {
+      //   // Verifica se o produto possui pelo menos um dos tamanhos selecionados
+      //   const hasSelectedSize = product.sizes?.some(size => selectedSizes.includes(size));
+      //   if (!hasSelectedSize) return false;
+      // }
 
+      // if (selectedSizes.length > 0) {
+
+        const selectSize = product.sizes?.some(size => (parseInt(size) > sizeRange[0]));
+        if (product.sizes && !selectSize) {
+          return false;
+        }
+      // }
       return true;
     });
-  }, [products, selectedCategories, selectedSizes, priceRange, searchTerm]);
+  }, [products, selectedCategories, selectedSizes, priceRange, sizeRange, searchTerm]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -118,7 +131,7 @@ const Products = () => {
                   <h3 className="text-sm font-medium mb-4">Preço</h3>
                   <Slider
                     min={0}
-                    max={1000}
+                    max={5000}
                     step={50}
                     value={priceRange}
                     onValueChange={setPriceRange}
@@ -133,7 +146,7 @@ const Products = () => {
                 {/* Sizes */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-4">Tamanhos</h3>
-                  <div className="flex flex-wrap gap-2">
+                  {/* <div className="flex flex-wrap gap-2">
                     {sizes.map((size) => (
                       <Button
                         key={size}
@@ -144,6 +157,18 @@ const Products = () => {
                         {size}
                       </Button>
                     ))}
+                  </div> */}
+                  <Slider
+                    min={6}
+                    max={90}
+                    step={1}
+                    value={sizeRange}
+                    onValueChange={setSizeRange}
+                    className="mb-4"
+                  />
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{sizeRange[0]}</span>
+                    <span>{sizeRange[1]}</span>
                   </div>
                 </div>
 
@@ -154,7 +179,7 @@ const Products = () => {
                   onClick={() => {
                     setSelectedCategories([]);
                     setSelectedSizes([]);
-                    setPriceRange([0, 1000]);
+                    setPriceRange([0, 5000]);
                     setSearchTerm("");
                   }}
                 >
@@ -198,7 +223,7 @@ const Products = () => {
                     onClick={() => {
                       setSelectedCategories([]);
                       setSelectedSizes([]);
-                      setPriceRange([0, 1000]);
+                      setPriceRange([0, 5000]);
                       setSearchTerm("");
                     }}
                   >

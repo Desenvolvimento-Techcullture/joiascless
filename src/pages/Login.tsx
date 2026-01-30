@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { data } from "@/data/company.js";
+import { company } from "@/assets/data.js";
 import WhatsAppIcon from '@/components/WhatsAppIcon';
 
 
@@ -81,14 +81,17 @@ const Login = () => {
           <div className="flex justify-center mb-8">
             <div className="h-20 w-20 rounded-2xl  from-secondary to-warning flex items-center justify-center shadow-gold">
               {/* <Gavel className="h-10 w-10 text-secondary-foreground" /> */}
-              <img src={data.logo} alt={data.name} />
+              <img src={company.logo} 
+              alt={company.name} 
+              className='border w-64 rounded-full bg-cover bg-center'
+              />
             </div>
           </div>
           <h1 className="font-serif text-4xl font-bold text-primary-foreground mb-4">
-            {data.name}
+            {company.name}
           </h1>
           <p className="text-primary-foreground/80 text-lg max-w-md mx-auto">
-            {data.slogan}
+            {company.slogan}
           </p>
         </div>
       </div>
@@ -101,7 +104,7 @@ const Login = () => {
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
               <Gavel className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="font-serif text-2xl font-semibold">{data.name}</span>
+            <span className="font-serif text-2xl font-semibold">{company.name}</span>
           </div>
 
           <div className="text-center mb-8">
@@ -208,7 +211,7 @@ const Login = () => {
                 isLogin ? 'Entrar' : 'Criar Conta'
               )}
             </Button>
-            {!isLogin && (<div className="flex items-center">
+            { (!isLogin && company.uriTermosCondicoes ) && (<div className="flex items-center">
               <input
                 id="terms"
                 name="terms"
@@ -218,7 +221,7 @@ const Login = () => {
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                 Concordo com as{' '}
-                <a href={data.uriTermosCondicoes} target='__blank' className="font-medium text-primary hover:opacity-70">
+                <a href={company.uriTermosCondicoes} target='__blank' className="font-medium text-primary hover:opacity-70">
                   Termos e condições
                 </a>{' '}
 

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch"
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   Loader2,
@@ -12,7 +14,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { products as initialProducts } from "@/data/company.js";
+import { useProduct } from "@/contexts/ProductContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -34,63 +36,54 @@ import {
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-interface ProductForm {
-  name: string;
-  price: string;
-  quantity: string;
-  category: string;
-  images: string[];
-  description: string;
-  sizes: string;
-}
-
-interface Order {
-  id: string;
-  customer: string;
-  total: number;
-  status: string;
-}
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
+import { Order, Customer, ProductForm } from "@/lib/types";
+import { useAuthFetch } from "@/hooks/use-auth-fetch";
 
 const Admin = () => {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+  const { products, addProduct, updateProduct, removeProduct, reloadProducts, loading, error } = useProduct();
+  const { authFetch, loading: loadingFetch, error: fetchError } = useAuthFetch();
 
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "customers">(
     "products"
   );
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   // ===== Autenticação =====
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   // ===== Dados =====
-  let productsData = initialProducts;
-  const savedProds = localStorage.getItem("products");
-  if (savedProds) productsData = JSON.parse(savedProds);
+  // const savedProds = localStorage.getItem("products");
+  // if (savedProds) productsData = JSON.parse(savedProds);
 
-  const savedOrders = localStorage.getItem("orders");
+  const fetchOrders = async () => {
+    setLoadingOrders(true);
+    try {
+      const data = await authFetch<Order[]>({ url: "orders/" });
+      setOrders(data);
+    } catch (err) {
+      console.error("Erro ao buscar pedidos:", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
-  const orders: Order[] = savedOrders
-    ? JSON.parse(savedOrders)
-    : [
-      { id: "1", customer: "João Silva", total: 199.9, status: "Pendente" },
-      { id: "2", customer: "Maria Oliveira", total: 349.5, status: "Enviado" },
-    ];
+  const fetchCustomers = async () => {
+    setLoadingCustomers(true);
+    try {
+      const data = await authFetch<Customer[]>({ url: "customers/" });
 
-  const savedCustomers = localStorage.getItem("customers");
-  const customers: Customer[] = savedCustomers
-    ? JSON.parse(savedCustomers)
-    : [
-      { id: "1", name: "João Silva", email: "joao@mail.com", phone: "99999-9999" },
-      { id: "2", name: "Maria Oliveira", email: "maria@mail.com", phone: "98888-8888" },
-    ];
+      setCustomers(data);
+    } catch (err) {
+      console.error("Erro ao buscar clientes:", err);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  };
 
   // ===== Estado produtos =====
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -105,6 +98,7 @@ const Admin = () => {
     images: [],
     description: "",
     sizes: "",
+    highlight: false,
   });
 
   // ===== Funções utilitárias =====
@@ -117,6 +111,7 @@ const Admin = () => {
       images: [],
       description: "",
       sizes: "",
+      highlight: false,
     });
     setEditingId(null);
   };
@@ -130,6 +125,7 @@ const Admin = () => {
       images: product.images || [],
       description: product.description || "",
       sizes: product.sizes ? product.sizes.join(", ") : "",
+      highlight: product.highlight,
     });
     setEditingId(product.id);
     setIsDialogOpen(true);
@@ -174,7 +170,7 @@ const Admin = () => {
     setFormData({ ...formData, images: updated });
   };
 
-  const handleSubmitProduct = (e: React.FormEvent) => {
+  const handleSubmitProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.images.length === 0) {
@@ -192,36 +188,63 @@ const Admin = () => {
       sizes: formData.sizes
         ? formData.sizes.split(",").map((s) => s.trim())
         : null,
+      highlight: formData.highlight,
     };
 
     if (editingId) {
-      const index = productsData.findIndex((p) => p.id == editingId);
-      productsData[index] = { ...productsData[index], ...productData };
+      const index = products.findIndex((p) => p.id == parseInt(editingId));
+
+      const resp = await updateProduct({ id: parseInt(editingId), ...productData });
+
       toast({ title: "Produto atualizado", description: "Produto atualizado com sucesso!" });
     } else {
-      productsData.push({ id: productsData.length + 1, ...productData });
+      addProduct({ ...productData });
+
       toast({ title: "Produto criado", description: "Produto criado com sucesso!" });
     }
 
-    localStorage.setItem("products", JSON.stringify(productsData));
+    // localStorage.setItem("products", JSON.stringify(productsData));
     setIsDialogOpen(false);
     resetForm();
   };
 
   const handleDeleteProduct = (id: string) => {
     if (!confirm("Deseja realmente deletar este produto?")) return;
-    const index = productsData.findIndex((p) => p.id == id);
-    productsData.splice(index, 1);
-    localStorage.setItem("products", JSON.stringify(productsData));
+    const index = products.findIndex((p) => p.id == parseInt(id));
+    products.splice(index, 1);
+    // localStorage.setItem("products", JSON.stringify(initialProducts));
+    removeProduct(parseInt(id));
     toast({ title: "Produto deletado", description: "Produto deletado com sucesso!" });
   };
 
+  const handleConfirmOrder = (order) => {
+    if (!confirm(`Deseja confirmar o pedido ${order.id}?`)) return;
+
+    order.items.forEach( el => {
+     const estoque = products.find( it => it.id = el.id );
+     updateProduct({...estoque, quantity: (estoque.quantity - el.quantity )});  
+    } );
+    order.status = 'finalizado';
+    authFetch({ url: `orders/${order.id}`, method: 'PUT', body: order })
+
+    toast({ title: "Pedido Confirmado", description: `O pedido ${order.id} foi confirmado com sucesso`});
+
+  };
+  
   // ===== Filtragem produtos =====
-  const filteredProducts = productsData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const term = search.toLowerCase();
-    return product.name.toLowerCase().includes(term) || product.category.toLowerCase().includes(term);
+    return product.name?.toLowerCase().includes(term) || product.category?.toLowerCase().includes(term);
   });
 
+
+  useEffect(() => {
+    if (activeTab === "orders") {
+      fetchOrders();
+    } else if (activeTab === "customers") {
+      fetchCustomers();
+    }
+  }, [activeTab]);
   // ===== Render =====
   return (
     <div className="min-h-screen flex flex-col">
@@ -261,23 +284,28 @@ const Admin = () => {
 
               {/* Botão Novo Produto */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-                    {/* Pesquisa */}
-                    <Input placeholder="Pesquisar por nome ou categoria..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-md " />
-                    <Button onClick={resetForm}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Novo Produto
-                    </Button>
-                  </div>
-                </DialogTrigger>
+                <div className="flex items-center justify-between mb-6 gap-4">
+
+                  {/* Pesquisa */}
+                  <Input placeholder="Pesquisar por nome ou categoria..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-md " />
+
+                  <DialogTrigger asChild>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+
+                      <Button onClick={resetForm}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Novo Produto
+                      </Button>
+                    </div>
+                  </DialogTrigger>
+                </div>
 
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>{editingId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
                   </DialogHeader>
 
-                  <form onSubmit={handleSubmitProduct} className="space-y-4">
+                  <form onSubmit={handleSubmitProduct} className="space-y-4 overflow-y-auto max-h-[75vh] pr-2">
                     <div>
                       <Label>Nome</Label>
                       <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
@@ -334,6 +362,26 @@ const Admin = () => {
                       <Label>Descrição</Label>
                       <Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                     </div>
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <Label>Destaque</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Marcar este produto como destaque
+                        </p>
+                      </div>
+
+                      <Switch
+                        checked={formData.highlight}
+                        onCheckedChange={(value) => {
+                          setFormData(prev => {
+                            const updated = { ...prev, highlight: value }
+
+                            return updated
+                          })
+                        }}
+                      />
+
+                    </div>
 
                     <div>
                       <Label>Tamanhos</Label>
@@ -342,7 +390,7 @@ const Admin = () => {
 
                     <div className="flex justify-end gap-2">
                       <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                      <Button type="submit">{editingId ? "Atualizar" : "Criar"}</Button>
+                      <Button type="submit"  disabled={loading}>{loading ? "Enviando...":( editingId ? "Atualizar" : "Criar")}</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -365,7 +413,7 @@ const Admin = () => {
                         </div>
                         <div className="flex gap-2">
                           <Button size="icon" variant="outline" onClick={() => handleEditProduct(product)}><Pencil className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="destructive" onClick={() => handleDeleteProduct(product.id)}><Trash2 className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="destructive" onClick={() => handleDeleteProduct(String(product.id))}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </div>
                     </CardHeader>
@@ -383,41 +431,80 @@ const Admin = () => {
           {activeTab === "orders" && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Pedidos</h2>
-              {orders.map(order => (
-                <Card key={order.id} className="mb-4">
+
+              {loadingOrders ? (
+                <p>Carregando pedidos...</p>
+              ) : fetchError ? (
+                <p className="text-red-600">{fetchError}</p>
+              ) : orders.length === 0 ? (
+                <p>Nenhum pedido encontrado.</p>
+              ) : (
+                orders
+                .sort((a, b) => b.id - a.id)
+                .map((order) => (
+                  <Card key={order.id} className="mb-4">
                   <CardHeader>
-                    <div className="flex justify-between ">
+                    <div className="flex justify-between items-center">
                       <div>
                         <CardTitle>Pedido #{order.id}</CardTitle>
-                        <CardDescription>Cliente: {order.customer.name}</CardDescription>
+                        <CardDescription>
+                          Cliente: {order.customer.name}
+                        </CardDescription>
                         <p>Total: R$ {order.total.toFixed(2)}</p>
                       </div>
-                      <div>Status: {order.status}</div>
+                
+                      <div className="flex flex-col items-end gap-2">
+                        <span>Status: {order.status || 'pendente'}</span>
+                      {
+                        (order.status == 'pendente') && (
+
+                          <Button
+                          onClick={() => handleConfirmOrder(order)}
+                          variant="outline"
+                          >
+                          Confirmar pedido
+                        </Button>
+                          )
+                        }
+                      </div>
                     </div>
                   </CardHeader>
                 </Card>
-              ))}
+                
+                ))
+              )}
             </div>
           )}
+
 
           {activeTab === "customers" && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Clientes</h2>
-              {customers.map(customer => (
-                <Card key={customer.id} className="mb-4">
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div>
-                        <CardTitle>{customer.name}</CardTitle>
-                        <CardDescription>Email: {customer.email}</CardDescription>
-                        <p>Telefone: {customer.phone}</p>
+
+              {loadingCustomers ? (
+                <p>Carregando clientes...</p>
+              ) : fetchError ? (
+                <p className="text-red-600">{fetchError}</p>
+              ) : customers.length === 0 ? (
+                <p>Nenhum cliente encontrado.</p>
+              ) : (
+                customers.map((customer) => (
+                  <Card key={customer.name} className="mb-4">
+                    <CardHeader>
+                      <div className="flex justify-between">
+                        <div>
+                          <CardTitle>{customer.name}</CardTitle>
+                          <CardDescription>Email: {customer.email}</CardDescription>
+                          <p>Telefone: {customer.phone}</p>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
+                    </CardHeader>
+                  </Card>
+                ))
+              )}
             </div>
           )}
+
         </div>
       </main>
 

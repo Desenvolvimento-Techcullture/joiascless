@@ -1,27 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  password: string;
-  role?: 'admin' | 'user';
-}
-
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-}
+import { User, AuthState, AuthContextType } from '@/lib/types';
 
 
-const USERS_API_URL = 'https://leiloes.portaldeanuncios.com/api/users/';
-
-interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, phone: string, password: string) => Promise<boolean>;
-  logout: () => void;
-}
+const USERS_API_URL = 'https://techculture.portaldeanuncios.com/api/v2/users/';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,7 +15,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
       // Busca usuários da API
-      const response = await fetch(USERS_API_URL);
+      const response = await fetch(USERS_API_URL + `?email=${email}`);
       if (!response.ok) {
         console.error('Erro ao buscar usuários');
         return false;
@@ -42,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const users: User[] = await response.json();
       const user = users.find(u => (u.email === email) && (u.password === btoa(password)) );
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZW1haWwuY29tIiwic3lzIjoiY2F0YWxvZyIsIm93bmVyIjoidGVjaGN1bHR1cmUiLCJpYXQiOjE3Njk1MjQ5NzksImV4cCI6MTc2OTUyODU3OX0=.jZP+Ek0Ojx5JuF7EOTO2C48Y0BgX76JV2STJ5aku2ec=';
       
       if (user && password.length >= 6) {
         setAuthState({ user, isAuthenticated: true });
@@ -83,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const createdUser = await response.json();
+
       setAuthState({ user: createdUser || newUser, isAuthenticated: true });
       return true;
     } catch (error) {

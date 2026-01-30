@@ -5,7 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { products } from "@/data/company.js";
+import { useProduct } from "@/contexts/ProductContext";
+
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -14,9 +15,8 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
-
-  const prods = JSON.parse(localStorage.getItem("products")) ?? products;
-  const product = prods.find((p) => p.id == id);
+  const {products} = useProduct();
+  const product = products.find( (p) => p.id == id);
 
   if (!product) {
     return (

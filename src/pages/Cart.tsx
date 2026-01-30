@@ -64,7 +64,7 @@ const Cart = () => {
                       className="w-24 h-24 flex-shrink-0 overflow-hidden rounded-md bg-muted"
                     >
                       <img
-                        src={item.image}
+                        src={item.images[0]}
                         alt={item.name}
                         className="h-full w-full object-cover hover:scale-105 transition-smooth"
                       />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { data } from "@/data/company.js";
-import  WhatsAppIcon from "@/components/WhatsAppIcon";
+import { company } from "@/assets/data.js";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 const Contact = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
       toast({
@@ -129,42 +129,42 @@ const Contact = () => {
                 </h2>
 
                 <div className="space-y-6">
-                  {/* <div className="flex items-start gap-4">
+                  {company.address && (<div className="flex items-start gap-4">
                     <div className="bg-background p-3 rounded-lg">
                       <MapPin className="h-5 w-5 text-accent" />
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Endereço</h3>
                       <p className="text-sm text-muted-foreground">
-                       {data.address}
+                        {company.address}
                       </p>
                     </div>
-                  </div> */}
+                  </div>)}
 
-                  <div className="flex items-start gap-4">
+                  {company.phone && (<div className="flex items-start gap-4">
                     <div className="bg-background p-3 rounded-lg">
                       <Phone className="h-5 w-5 text-accent" />
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Telefone</h3>
                       <p className="text-sm text-muted-foreground">
-                        {data.phone}<br />
-                        {data.openingHours}
+                        {company.phone}<br />
+                        {company.openingHours}
                       </p>
                     </div>
-                  </div>
+                  </div>)}
 
-                  <div className="flex items-start gap-4">
+                  {company.email && (<div className="flex items-start gap-4">
                     <div className="bg-background p-3 rounded-lg">
                       <Mail className="h-5 w-5 text-accent" />
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">E-mail</h3>
                       <p className="text-sm text-muted-foreground">
-                        {data.email}
+                        {company.email}
                       </p>
                     </div>
-                  </div>
+                  </div>)}
                 </div>
               </div>
 
@@ -178,33 +178,51 @@ const Contact = () => {
                 </p>
 
                 <div className="flex gap-4">
-                  <a
-                    href={data.instagram}
+                 { company.instagram && ( <a
+                    href={company.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-muted p-4 rounded-lg hover:bg-accent transition-smooth flex items-center justify-center"
                     aria-label="Instagram"
                   >
                     <Instagram className="h-6 w-6" />
-                  </a>
-                  <a
-                    href={data.facebook}
+                  </a>)}
+                  {company.facebook && (<a
+                    href={company.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-muted p-4 rounded-lg hover:bg-accent transition-smooth flex items-center justify-center"
                     aria-label="Facebook"
                   >
                     <Facebook className="h-6 w-6" />
-                  </a>
-                  <a
-                    href={data.whatsapp}
+                  </a>)}
+                  {company.youtube && (<a
+                    href={company.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-muted p-4 rounded-lg hover:bg-accent transition-smooth flex items-center justify-center"
+                    aria-label="Youtube"
+                  >
+                    <Youtube className="h-6 w-6" />
+                  </a>)}
+                  { company.whatsapp && (<a
+                    href={company.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-muted p-4 rounded-lg hover:bg-accent transition-smooth flex items-center justify-center"
                     aria-label="WhatsApp"
                   >
                     <WhatsAppIcon className="h-6 w-6" />
-                  </a>
+                  </a>)}
+                  { company.twitter && (<a
+                    href={company.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-muted p-4 rounded-lg hover:bg-accent transition-smooth flex items-center justify-center"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="h-6 w-6" />
+                  </a>)}
                 </div>
               </div>
             </div>

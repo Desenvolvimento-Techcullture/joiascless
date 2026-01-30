@@ -1,12 +1,36 @@
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
 // import heroBanner from "@/assets/hero-banner.jpg";
 // import heroBanner from "@/assets/prod10.png";
 
+import carroussel1 from '@/assets/banner_site.png';
+import carroussel2 from '@/assets/banner_brincos.png';
+import carroussel3 from '@/assets/banner_tornozeleira.png';
+
+export const banners = [{
+        id: "1",
+        image: carroussel1,
+        title: "",
+        description: "Vem pra joias cless",
+        buttons: [
+            { link: "/products", description: "Meus produtos legais", variant: 'outlineDark' },
+            { link: "/products", description: "Contatos legais", variant: 'dark' },
+            { link: "/products", description: "outras coisas legais legais", variant: 'primary' },
+        ]
+    },
+    // {
+    //     id: "2",
+    //     image: carroussel2,
+    //     title: "",
+    //     description: ""
+    // },
+    // {
+    //     id: "3",
+    //     image: carroussel3,
+    //     title: "",
+    //     description: ""
+    // }
+];
 export const products = [
-    { "id": 768, "images": ["https://joiascless.catalogo.app/fotos/189/189_768_produto.jpg"], "name": "ANEL SOLITARIO ZIRCONIA", "price": 129.9, "category": "Anéis", "description": "anel solitario zirconia", "quantity": 7 },
+    { "id": 768, "images": ["https://joiascless.catalogo.app/fotos/189/189_768_produto.jpg", "https://joiascless.catalogo.app/fotos/189/189_1290_produto.jpg"], "name": "ANEL SOLITARIO ZIRCONIA", "price": 129.9, "category": "Anéis", "description": "anel solitario zirconia", "quantity": 7 },
     { "id": 117, "images": ["https://joiascless.catalogo.app/fotos/189/189_117_produto.jpg"], "name": "BRINCO BOLINHA", "price": 34.9, "category": "Brincos", "description": "brinco bolinha", "quantity": 3 },
     { "id": 1338, "images": ["https://joiascless.catalogo.app/fotos/189/189_1338_produto.jpg"], "name": "PULSEIRA 3 CRISTAIS INFANTIL", "price": 89.9, "category": "Pulseiras", "description": "pulseira 3 cristais infantil", "quantity": 9 },
     { "id": 1331, "images": ["https://joiascless.catalogo.app/fotos/189/189_1331_produto.jpg"], "name": "PULSEIRA PEIXE COM PEDRINHA OURO", "price": 89.9, "category": "Pulseiras", "description": "pulseira peixe com pedrinha ouro", "quantity": 1 },
@@ -58,20 +82,23 @@ export const products = [
     { "id": 1016, "images": ["https://joiascless.catalogo.app/fotos/189/189_1016_produto.jpg"], "name": "CHOCKER FLORENCE 6MM", "price": 189.9, "category": "Chockers", "description": "chocker florence 6mm", "quantity": 9 }
 ]
 
+export const API_BASE_URL = "https://techculture.portaldeanuncios.com/joiascless/api/";
+export const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiYWRtaW5AZW1haWwuY29tIiwic3lzIjoiY2F0YWxvZyIsIm93bmVyIjoidGVjaGN1bHR1cmUiLCJpYXQiOjE3Njk1MjQ5NzksImV4cCI6MTc2OTUyODU3OX0=.jZP+Ek0Ojx5JuF7EOTO2C48Y0BgX76JV2STJ5aku2ec=';
 
-
-export const data = {
+export const company = {
     name: 'JOIAS CLESS',
     logo: '/logo-transparente.png',
     slogan: 'Semijoias sob medida para você.',
-    address: 'Rua Ivan Colen, 140  - Santa Luzia - MG',
+    address: '',
     phone: '+55 (31) 98270-7263',
     email: 'joiascless@gmail.com',
     instagram: 'https://www.instagram.com/joiascless/',
     facebook: 'https://www.facebook.com/joiascless',
     whatsapp: 'https://wa.me/5531982707263',
-    uriTermosCondicoes: '/regras.html',
-    openingHours: 'Segunda a sexta: 8h às 18h'
+    uriTermosCondicoes: '#',
+    openingHours: 'Segunda a sexta: 8h às 18h',
+    twitter: '',
+    youtube: '',
 }
 const currentMonth = new Date().toLocaleString('pt-BR', { month: 'long' });
 
@@ -85,16 +112,6 @@ export const navLinks = [
     { path: "/", label: "Início" },
     { path: "/products", label: "Produtos" },
     { path: "/contact", label: "Contato" },
-];
-
-export const categories = [...new Set(products.map(product => product.category))];
-
-export const sizes = [
-    "06", "07", "08", "09",
-    "10", "11", "12", "13", "14", "15",
-    "16", "17", "18", "19", "20",
-    "21", "22", "23", "24", "25", "26",
-    "30", "35", "40", "45", "60", "70", "80", "90"
 ];
 
 

@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "./ui/badge";
-import { navLinks, data } from "@/data/company.js";
+import { navLinks, company } from "@/assets/data.js";
 import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
@@ -38,16 +38,16 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={data.logo}
+              src={company.logo}
               alt=""
-              className="h-8 w-auto object-contain"
+              className="h-12 w-auto rounded-full object-cover"
             />
-            <img
-              src="/marca-transparente.png"
+            {/* <img
+              src="/marca.jpg"
               alt=""
-              className="h-8 w-auto object-contain"
-            />
-            {/* <h1 className="text-2xl font-light tracking-tight">{data.name}</h1> */}
+              className="h-12 rounded-full object-cover"
+            /> */}
+            <h1 className="text-1xl font-light tracking-tight">{company.name}</h1>
           </Link>
 
 
@@ -106,7 +106,7 @@ const Header = () => {
                 </Button>
               </div>
             ) : (
-              <Button size="sm" asChild>
+              <Button size="sm" variant="dark" asChild>
                 <Link to="/login">Entrar</Link>
               </Button>
             )}
